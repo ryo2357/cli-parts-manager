@@ -172,6 +172,7 @@ impl PartsMaster {
         let updated_master_contents = updated_master_contents.replace("- id", "\n- id");
         let mut master_file = OpenOptions::new()
             .append(true) // 追記モードで開く
+            .create(true)
             .open(&self.path)?;
         master_file.write_all(updated_master_contents.as_bytes())?;
 
