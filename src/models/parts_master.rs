@@ -3,15 +3,15 @@ use serde_yaml;
 use std::fs::File;
 use std::io::{Read, Write,BufWriter};
 use std::fs::OpenOptions;
-use std::vec;
 use anyhow::Result;
 use csv::Writer;
 use encoding_rs::SHIFT_JIS;
+use derive_getters::Getters;
 
 
 use super::add_parts::AddParts;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Getters)]
 pub struct PartData {
     id: u32, // Add an optional id field
     name: String,
@@ -107,7 +107,7 @@ impl PartsMaster {
     pub fn get_vec_model_and_max_uuid(&self)->(Vec<String>,u32){
         let mut max_id = 0;
         let vec_model:Vec<String> = self.inner.iter().map(|part| {
-            if max_id > part.id { max_id = part.id }
+            if max_id < part.id { max_id = part.id }
             part.model.clone()
         }).collect();
         (vec_model,max_id)
@@ -145,6 +145,7 @@ impl PartsMaster {
     // メソッド的にファイルに追記するように実行するメソッド
     pub fn add_parts_and_write(&mut self,parts:AddParts)->Result<()>{
         let (vec_model,mut max_uuid) = self.get_vec_model_and_max_uuid();
+        // println!("max_uuid :{:?}",max_uuid);
         let mut add_parts:Vec<PartData> = Vec::new();
         for add_part in parts.take_inner().into_iter(){
             let add_part = match add_part.convert(max_uuid+1){
@@ -218,6 +219,9 @@ impl PartsMaster {
         }
 
         Ok(())
+    }
+    pub fn find_by_model(&self, model: &str) -> Option<&PartData> {
+        self.inner.iter().find(|&part| part.model == model)
     }
 }
 

@@ -25,7 +25,13 @@ enum Commands {
         #[arg(help = "Path to the output file")]
         file_path2: String,
     },
-    Convert
+    ConvertCSV,
+    GenerateList{
+        #[arg(help = "Path to the list file")]
+        file_path1: String,
+        #[arg(help = "Path to the output file")]
+        file_path2: String,
+    },
 }
 
 #[allow(unused_variables)]
@@ -38,15 +44,11 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::Check { file_path1, file_path2 }) => {
             controllers::check_model_list::check_model_list(file_path1, file_path2, PARTS_MASTER_FILE_PATH)?;
         }
-        // Some(Commands::Completion { shell }) => {
-        //     let shell: &str = shell;
-        //     match shell {
-        //         "bash" => generate(Bash, &mut Cli::command(), "myapp", &mut io::stdout()),
-        //         _ => eprintln!("Unsupported shell"),
-        //     }
-        // }
-        Some(Commands::Convert) => {
+        Some(Commands::ConvertCSV) => {
             controllers::convert_to_csv::convert_to_csv(PARTS_MASTER_FILE_PATH, CSV_MASTER_FILE_PATH)?;
+        }
+        Some(Commands::GenerateList { file_path1, file_path2 }) => {
+            controllers::generate_list::generate_parts_list(file_path1, file_path2, PARTS_MASTER_FILE_PATH)?;
         }
         None => {}
     }
